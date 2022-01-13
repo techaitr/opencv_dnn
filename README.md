@@ -23,7 +23,7 @@ catkin build
 source /home/USERNAME/opencv_dnn_ws/devel/setup.bash
 #ros pkg olusturma...
 cd src/
-git clone ssh://git@192.168.100.2:350/plnm/karsilama_robotu/opencv_dnn_object_detector_ros.git 
+git clone ssh://git@192.168.100.2:350/********.git 
 # Branch kontrolü yapabilirsiniz...  "-b f_melodic_init"
 . ~/opencv_dnn_ws/devel/setup.bash
 # derlemek icin workspace gidilir ve derlenir 
