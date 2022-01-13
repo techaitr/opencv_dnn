@@ -39,41 +39,70 @@ cd ~/opencv_dnn_ws/src && catkin build
 `formatName`:Parametre olarak `tensorflow` veya `darknet` değerlerini alır.
 
 `directoryPathOfCOCONames`:Parametre olarak  `coco.names`'in dosya yolunu alır. Örneğin: **/home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/data/coco.names**
+
 `CONFIDENCE_THRESHOLD`: Parametre olarak **0.5** değeri default değerdir.
+
 `NMS_THRESHOLD`: Parametre olarak **0.4** değeri default değeridir.
+
 `NUM_CLASSES`: Parametre olarak **80**'dir. `coco.names` içindeki sınıf sayısıdır.
+
 `stopDetection`: Parametre olarak **false** ile başlatılır. İnsan algılama durdurmak için kullanılır. 
+
 `darknet`: 
+
 	`  inputWidthYOLO`: Parametre olarak kullanılan `YOLO` modelinin görüntü `Width` boyutu verilir. Default olarak 416'dır.
+	
 	`  inputHeightYOLO`: Parametre olarak kullanılan `YOLO` modelinin görüntü `Height` boyutu verilir. Default olarak 416'dır.
+	
 	`  directoryOfPathYOLOConfigFile`: Parametre olarak `YOLO` modelinin `cfg` dosyasının uzantısı verilir. **/home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/cfg/yolov4-tiny.cfg**
+	
 	` directoryOfPathYOLOWeights`: Parametre olarak `YOLO` modelin ağırlık dosyasının uzantısı verilir. /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/weights/yolov4-tiny.weights
+	
 `tensorflow`: Parametre olarak  
+
 	`  inputWidthTensorflow`: Parametre olarak kullanılan `YOLO` modelinin görüntü `Width` boyutu verilir. Default olarak 300'dür.
+	
 	`  inputHeightTensorflow`: Parametre olarak kullanılan `YOLO` modelinin görüntü `Height` boyutu verilir. Default olarak 300'dür.
+	
 	`  directoryOfPathfrozenInferenceGraph`:Parametre olarak **/home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/weights/frozen_inference_graph.pb** .pb uzantılı tensorflow uzantılı dosya yolunu alır.
+	
 	`  directoryOfPathmodelTensorflowPbtxt`: Parametre olarak **/home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/cfg/ssd_mobilenet_v2.pbtxt** .pbtxt uzantılı dosya yolunu alır.
+	
 
 ~~~
 formatName: tensorflow
+
 directoryPathOfCOCONames: /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/data/coco.names
+
 CONFIDENCE_THRESHOLD: 0.5
+
 NMS_THRESHOLD: 0.4
+
 NUM_CLASSES: 80
+
 stopDetection: false
+
 darknet:
+
   inputWidthYOLO: 416 
+  
   inputHeightYOLO: 416 
+  
   directoryOfPathYOLOConfigFile: /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/cfg/yolov4-tiny.cfg
+  
   directoryOfPathYOLOWeights: /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/weights/yolov4-tiny.weights
+  
 tensorflow:
+
   inputWidthTensorflow: 300 
+  
   inputHeightTensorflow: 300 
+  
   directoryOfPathfrozenInferenceGraph: /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/weights/frozen_inference_graph.pb
+  
   directoryOfPathmodelTensorflowPbtxt: /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/cfg/ssd_mobilenet_v2.pbtxt
+  
 ~~~
-
-
 
 ## Nasıl Çalıştırılır?
 
