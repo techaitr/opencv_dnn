@@ -1,74 +1,63 @@
 # opencv_dnn_object_detector_ros
 
-Bu paket,"YOLO" ve "Tensorflow SSD mobile net" modellerini kullanarak insan algılama için kullanılır.
+Bu paket, OpenCV DNN modülü ile **YOLO (Darknet)** ve **TensorFlow SSD MobileNet** modellerini kullanarak kamera üzerinden insan / nesne algılama yapar. ROS Melodic altında çalışır.
 
 ## Gereksinimler
 
-[ROS-Melodic](http://wiki.ros.org/melodic/Installation/Ubuntu)
-
-[OpenCV 4.5.4](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html)
+- [ROS Melodic](http://wiki.ros.org/melodic/Installation/Ubuntu)
+- [OpenCV 4.5.4](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html)
+- Model dosyaları (`cfg`, `weights`, `coco.names`) — repoda yer almaz; yaml içindeki yollar kendi makinenize göre ayarlanmalıdır.
 
 ## Nasıl kurulur?
 
-İlk önce bir ros çalışma ortami ardındanda ros paketi oluşturmalısınız.
+İlk önce bir ROS çalışma ortamı, ardından paket kurulumu yapılmalıdır.
 
 ```bash
-#ros calisma ortami oluşturma.
+# ROS calisma ortami olusturma
 mkdir -p ~/opencv_dnn_ws/src
-# workspace gidilir.
-cd opencv_dnn_ws 
-# workspace in derlenmesi gerekir. 
+cd ~/opencv_dnn_ws
 catkin build
-# .bashrc dosyasina aşagıdaki gibi setup.bash eklemelisin.
+
+# .bashrc dosyasina setup.bash ekleyin (USERNAME yerine kendi kullanici adiniz)
 source /home/USERNAME/opencv_dnn_ws/devel/setup.bash
-#ros pkg olusturma...
-cd src/
-# Branch kontrolü yapabilirsiniz...  "-b f_melodic_init"
+
+# paketi src altina koyun, sonra derleyin
+cd ~/opencv_dnn_ws/src
+# Branch kontrolu: "-b f_melodic_init"
 . ~/opencv_dnn_ws/devel/setup.bash
-# derlemek icin workspace gidilir ve derlenir 
-cd ~/opencv_dnn_ws/src && catkin build
+cd ~/opencv_dnn_ws && catkin build
 ```
 
 ## Parametre ayarlamak
 
-`config` klasörü altındaki [opencv_dnn_object_detector_ros.yaml](config/opencv_dnn_object_detector_ros.yaml)  içinde istenilen parametrelerin değerleri değiştirilebilir. Koda müdahale edilmeden parametre eklenme**me**li veya çıkarılma**ma**lıdır. Farklı yapıda bir parametre dosyası kullanılmak istenirse uygun `config` içinde yeni bir tane oluşturulabilir ve bu dosya  [opencv_dnn_object_detector_ros.launch](launch/opencv_dnn_object_detector_ros.launch) içinde rosparam file kısmında güncellenmelidir.  Detaylar, ilgili başlıklar altında yer almaktadır. Parametreler, isimleri, seçim sınırları ve kullanım tavisyeleri aşağıdadır. 
+`config` klasörü altındaki [opencv_dnn_object_detector_ros.yaml](opencv_dnn_object_detector_ros/config/opencv_dnn_object_detector_ros.yaml) içinde istenilen parametrelerin değerleri değiştirilebilir. Koda müdahale edilmeden parametre eklenme**me**li veya çıkarılma**ma**lıdır. Farklı yapıda bir parametre dosyası kullanılmak istenirse `config` içinde yeni bir tane oluşturulabilir ve bu dosya [opencv_dnn_object_detector_ros.launch](opencv_dnn_object_detector_ros/launch/opencv_dnn_object_detector_ros.launch) içindeki `rosparam file` kısmında güncellenmelidir.
 
-### Parametreler:
+### Parametreler
 
-`formatName`:Parametre olarak `tensorflow` veya `darknet` değerlerini alır.
+| Parametre | Açıklama |
+| --- | --- |
+| `formatName` | `tensorflow` veya `darknet` |
+| `directoryPathOfCOCONames` | `coco.names` dosya yolu |
+| `CONFIDENCE_THRESHOLD` | Varsayılan `0.5` |
+| `NMS_THRESHOLD` | Varsayılan `0.4` |
+| `NUM_CLASSES` | Varsayılan `80` (`coco.names` sınıf sayısı) |
+| `stopDetection` | Varsayılan `false`; algılamayı durdurmak için kullanılır |
 
-`directoryPathOfCOCONames`:Parametre olarak  `coco.names`'in dosya yolunu alır. Örneğin: **/home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/data/coco.names**
+**darknet**
 
-`CONFIDENCE_THRESHOLD`: Parametre olarak **0.5** değeri default değerdir.
+- `inputWidthYOLO` / `inputHeightYOLO`: Varsayılan `416`
+- `directoryOfPathYOLOConfigFile`: YOLO `.cfg` yolu
+- `directoryOfPathYOLOWeights`: YOLO `.weights` yolu
 
-`NMS_THRESHOLD`: Parametre olarak **0.4** değeri default değeridir.
+**tensorflow**
 
-`NUM_CLASSES`: Parametre olarak **80**'dir. `coco.names` içindeki sınıf sayısıdır.
+- `inputWidthTensorflow` / `inputHeightTensorflow`: Varsayılan `300`
+- `directoryOfPathfrozenInferenceGraph`: `.pb` dosya yolu
+- `directoryOfPathmodelTensorflowPbtxt`: `.pbtxt` dosya yolu
 
-`stopDetection`: Parametre olarak **false** ile başlatılır. İnsan algılama durdurmak için kullanılır. 
+Örnek yaml:
 
-`darknet`: 
-
-	`  inputWidthYOLO`: Parametre olarak kullanılan `YOLO` modelinin görüntü `Width` boyutu verilir. Default olarak 416'dır.
-	
-	`  inputHeightYOLO`: Parametre olarak kullanılan `YOLO` modelinin görüntü `Height` boyutu verilir. Default olarak 416'dır.
-	
-	`  directoryOfPathYOLOConfigFile`: Parametre olarak `YOLO` modelinin `cfg` dosyasının uzantısı verilir. **/home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/cfg/yolov4-tiny.cfg**
-	
-	` directoryOfPathYOLOWeights`: Parametre olarak `YOLO` modelin ağırlık dosyasının uzantısı verilir. /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/weights/yolov4-tiny.weights
-	
-`tensorflow`: Parametre olarak  
-
-	`  inputWidthTensorflow`: Parametre olarak kullanılan `YOLO` modelinin görüntü `Width` boyutu verilir. Default olarak 300'dür.
-	
-	`  inputHeightTensorflow`: Parametre olarak kullanılan `YOLO` modelinin görüntü `Height` boyutu verilir. Default olarak 300'dür.
-	
-	`  directoryOfPathfrozenInferenceGraph`:Parametre olarak **/home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/weights/frozen_inference_graph.pb** .pb uzantılı tensorflow uzantılı dosya yolunu alır.
-	
-	`  directoryOfPathmodelTensorflowPbtxt`: Parametre olarak **/home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/cfg/ssd_mobilenet_v2.pbtxt** .pbtxt uzantılı dosya yolunu alır.
-	
-
-~~~
+```yaml
 formatName: tensorflow
 
 directoryPathOfCOCONames: /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/data/coco.names
@@ -82,45 +71,36 @@ NUM_CLASSES: 80
 stopDetection: false
 
 darknet:
-
-  inputWidthYOLO: 416 
-  
-  inputHeightYOLO: 416 
-  
+  inputWidthYOLO: 416
+  inputHeightYOLO: 416
   directoryOfPathYOLOConfigFile: /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/cfg/yolov4-tiny.cfg
-  
   directoryOfPathYOLOWeights: /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/weights/yolov4-tiny.weights
-  
+
 tensorflow:
-
-  inputWidthTensorflow: 300 
-  
-  inputHeightTensorflow: 300 
-  
+  inputWidthTensorflow: 300
+  inputHeightTensorflow: 300
   directoryOfPathfrozenInferenceGraph: /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/weights/frozen_inference_graph.pb
-  
   directoryOfPathmodelTensorflowPbtxt: /home/USERNAME/yolov3_ws/src/opencv_dnn_object_detector_ros/input/cfg/ssd_mobilenet_v2.pbtxt
-  
-~~~
+```
 
-## Nasıl Çalıştırılır?
+> Not: Mevcut config dosyasındaki yollar `/home/plnm20/...` makinesine göredir. Kendi ortamınızda bu yolları güncelleyin. `input/` altında model dosyaları yoksa paket çalışmaz.
 
-[Kurulum](## Nasıl Kurulur?) yapıldıktan sonra;
+## Nasıl çalıştırılır?
+
+Kurulumdan sonra:
 
 ```bash
-cd ~/opencv_dnn_ws/ 
+cd ~/opencv_dnn_ws/
 roslaunch opencv_dnn_object_detector_ros opencv_dnn_object_detector_ros.launch
 ```
 
-Kod çalıştırılmış olur. Kapatılmak istenirse `ESC` basılır ve görüntü penceresi kapatırlır ardından `CTRL+C` ile kod durdurulur.
+Kamera açılır ve seçilen modele göre sonsuz döngüde tespit yapılır. ESC ile görüntü penceresi kapatılır; ardından `CTRL+C` ile node durdurulur.
 
 ## CMakeLists.txt
 
-CMakeLists.txt dosyası aşağıdaki gibi yazılmıştır.
+Önemli nokta: `find_package(OpenCV 4.5.4 REQUIRED)`. Sürüm belirtilmezse ROS ile gelen OpenCV kullanılır.
 
-Burada önemli olan şeylerden birisi `find_package(OpenCV 4.5.4 REQUIRED)`'dir.  Eğer ki OpenCV sürümünü belirtmezsek `ROS` ile gelen versiyonu kullanılacaktır. Bunu engellemek için OpenCV 4.5.4 versiyonunu belirtiyoruz. Eğer başka bir projede OpenCV'nin bu 4.5.4 versiyonunu kullanmak istemezsek.
-
-```bash
+```cmake
 cmake_minimum_required(VERSION 3.0.2)
 project(opencv_dnn_object_detector_ros)
 find_package(OpenCV 4.5.4 REQUIRED)
@@ -130,187 +110,60 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   roslib
 )
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES opencv_dnn_object_detector_ros
-  CATKIN_DEPENDS roscpp rospy std_msgs
-  #DEPENDS system_lib
-)
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-)
-add_executable(opencv_dnn_object_detector_ros src/opencv_dnn_object_detector_ros.cpp)
-target_link_libraries(opencv_dnn_object_detector_ros  
-	${catkin_LIBRARIES}  
-	${OpenCV_LIBRARIES}
-    opencv_objdetect
-    opencv_core 
-    opencv_imgproc
-    opencv_highgui
-    opencv_imgproc
-    opencv_objdetect
-    opencv_videoio
-)
 ```
 
-## Kaynak Kod Dosyaları
+## Kaynak kod akışı
 
-Dosyalar ve içlerindeki sınıflar ile ilgili bilgiler aşağıda yer almaktadır.
+Ana dosya: `opencv_dnn_object_detector_ros/src/opencv_dnn_object_detector_ros.cpp`
 
-### opencv_dnn_object_detector_ros.cpp
+### Başlatma sırası (`initialization`)
 
-* OpenCV DNN modülünü kullanarak tespit işleminin yapıldığı `cpp` dosyasıdır.
+1. `readFromYAMLFile()` — ROS parametrelerini okur
+2. `readFilesYOLOV3()` — `coco.names` sınıf isimlerini yükler
+3. `setupNet()` — `formatName`'e göre Darknet veya TensorFlow ağını kurar
+4. `openVideoCaptureStream()` — kamera (`0`) açılır ve ilgili sonsuz döngü başlar
 
-#### bool opencv_dnn_object_detector_ros::initialization()
+### `readFromYAMLFile()`
 
-* Kodun başlatılması için çağrılması gereken fonksiyondur.
-* Fonksiyon çağrıldırıldığında sırasıyla; `readFromYAMLFile`, `setupNet` fonksiyonkları çağrılır.
+`ros::NodeHandle` ile yaml parametrelerini okur (`formatName`, eşikler, model yolları).
 
-~~~
-    if (readFromYAMLFile())
-    {
-        packagePath = ros::package::getPath("opencv_dnn_object_detector_ros");
-        std::cout << "packagePath: " << packagePath << std::endl;
-        if (readClassNameFromNamesFile())
-        {
-            if (setupNet())
-            {
-               return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
+### `readFilesYOLOV3()`
 
-~~~
+`directoryPathOfCOCONames` dosyasındaki sınıf isimlerini `classNames` vektörüne ekler.
 
-#### bool opencv_dnn_object_detector_ros::readFromYAMLFile()
+### `setupNet()`
 
-* `ros::NodeHandle nh;`  ifadesi tanımlanır ve bununla `YAML` dosyasından okuma işlemleri aşağıdaki gibi yapılır.
+- `darknet` → `cv::dnn::readNetFromDarknet(...)`
+- `tensorflow` → `cv::dnn::readNet(..., "TensorFlow")`
 
-```	nh.getParam("/formatName", formatName);
-nh.getParam("/directoryPathOfCOCONames", directoryPathOfCOCONames);
-nh.getParam("/CONFIDENCE_THRESHOLD", CONFIDENCE_THRESHOLD);
-nh.getParam("/NMS_THRESHOLD", NMS_THRESHOLD);
-nh.getParam("/NUM_CLASSES", NUM_CLASSES);
-```
+### `detectDarknet(const cv::Mat &frame)`
 
- 
+- Giriş: görüntü matrisi
+- Çıkış: algılanan kutular (`std::vector<cv::Rect>`)
+- Yalnızca `person` sınıfı için kutu çizer
+- `stopDetection` ile algılama açılıp kapatılabilir
+- FPS ve tespit sayısı ekrana yazılır
 
-####  bool opencv_dnn_object_detector_ros::readClassNameFromNamesFile()
+### `detectTensorflow(const cv::Mat &frame)`
 
-* `coco.names` dosyasındaki obje isimlerini okur ve `std::vector<std::string>` formatındaki `classNames` değişkene atar.
+- Giriş: görüntü matrisi
+- Çıkış: algılanan kutular (`std::vector<cv::Rect>`)
+- Eşik üstü tüm sınıflar için kutu ve etiket çizer
 
-```	
-std::ifstream class_file(directoryPathOfCOCONames);
-if (!class_file)
-{
-	std::cerr << "failed to open" << directoryPathOfCOCONames << "\n";
-	return false;
-}
-while (getline(class_file, line))
-{
-	classNames.push_back(line);
-}
+### `cleanup()` / `reset(bool open)`
+
+- `cleanup`: `stopDetection = true`, kamera ve pencereler kapatılır
+- `reset`: önce `cleanup`, sonra `stopDetection = false`; `open == true` ise `initialization()` yeniden çağrılır
+
+## Paket yapısı
 
 ```
-
-#### bool opencv_dnn_object_detector_ros::setupNet()
-
-* Bu fonksiyonda `YAML` dosyasındaki `formatName`'e göre `darknet` veya `tensorflow` modellerine göre kod yapısı değişmektedir. 
-
-  ```
-  if (formatName == "darknet")
-  {
-  	net = cv::dnn::readNetFromDarknet(directoryOfPathYOLOConfigFile, directoryOfPathYOLOWeights);
-  	outputNames = net.getUnconnectedOutLayersNames();
-  	return true;
-  }
-  else if (formatName == "tensorflow")
-  {
-  	/* code */
-  	net = cv::dnn::readNet(directoryOfPathfrozenInferenceGraph, directoryOfPathmodelTensorflowPbtxt, "TensorFlow");
-  	outputNames = net.getUnconnectedOutLayersNames();
-  	return true;
-  }
-  
-  ```
-
-
-
-#### std::vector<<cv::Rect>> opencv_dnn_object_detector_ros::detectDarknet(const cv::Mat &frame)
-
-* Fonksiyon girdisi görüntü matrisi referansıdır. 
-* Çıktı ise `vector` tipinde OpenCV'nin `rectangular` formatındadır ve algılanan nesnelerin görüntü üzerindeki koordinat bilgilerini verir.
-* `stopDetection` ile algılama işlemi ile açma-kapama işlemi gerçekleştirilir.
-
-
-
-#### std::vector<cv::Rect> opencv_dnn_object_detector_ros::detectTensorflow(const cv::Mat &frame)
-
-* Fonksiyon girdisi görüntü matrisi referansıdır. 
-* Çıktı ise `vector` tipinde OpenCV'nin `rectangular` formatındadır ve algılanan nesnelerin görüntü üzerindeki koordinat bilgilerini verir.
-* `stopDetection` ile algılama işlemi ile açma-kapama işlemi gerçekleştirilir.
-
-
-
-#### void opencv_dnn_object_detector_ros::cleanup()
-
-* Fonksiyon çağrılırsa `stopDetection` true değeri alır.
-* Eğer ki `cap` açıksa da `release` ve `cv::destroyAllWindows`  çağrılır ve kamera kapatılır.
-
-
-
-#### void opencv_dnn_object_detector_ros::reset(bool open)
-
-* Fonksiyon çağrıldığında ilke olarak `cleanup` fonksiyonu çağrılır. 
-* Ardından `stopDetection` false olarak ayarlanır.
-* Eğer ki `open` true ise tekrar açma işlemi gerçekleştirilir. 
-* `initialization` fonksiyonu çağrılarak tekrardan başlatma işlemi gerçekleştirilir.
-
-``` 	
-cleanup();
-stopDetection = false;
-if (open)
-{
-	initialization();
-}
+opencv_dnn_object_detector_ros/
+  CMakeLists.txt
+  package.xml
+  config/opencv_dnn_object_detector_ros.yaml
+  include/opencv_dnn_object_detector_ros.hpp
+  launch/opencv_dnn_object_detector_ros.launch
+  src/opencv_dnn_object_detector_ros.cpp
+  input/   # model dosyalari buraya konmali (cfg, weights, data)
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
